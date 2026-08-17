@@ -1,0 +1,29 @@
+.auth-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.auth-card {
+  border: none;
+  border-radius: 10px;
+}
+
+.auth-card .card-body {
+  padding: 2rem;
+}
+
+.login-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  padding: .35rem;
+  border-radius: .6rem;
+  background: #f0f5f4;
+}
+
+.chat-messages {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}

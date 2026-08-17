@@ -1,0 +1,99 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: swasthya_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/seeds.sql:/docker-entrypoint-initdb.d/02-seeds.sql
+    networks:
+      - swasthya_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Redis (Optional - for caching/queues)
+  redis:
+    image: redis:7-alpine
+    container_name: swasthya_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - swasthya_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 3s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: swasthya_backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+      BACKEND_HOST: ${BACKEND_HOST}
+      BACKEND_PORT: ${BACKEND_PORT}
+      DEBUG: ${DEBUG}
+      SECRET_KEY: ${SECRET_KEY}
+      REDIS_URL: ${REDIS_URL}
+      LOG_LEVEL: ${LOG_LEVEL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - swasthya_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      timeout: 10s
+      retries: 5
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: swasthya_frontend
+    environment:
+      PORT: 8080
+      REACT_APP_API_URL: ${REACT_APP_API_URL}
+      REACT_APP_API_TIMEOUT: ${REACT_APP_API_TIMEOUT}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - swasthya_network
+    stdin_open: true
+    tty: true
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  swasthya_network:
+    driver: bridge

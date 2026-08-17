@@ -1,0 +1,328 @@
+/* SwasthyaMitra Modern Interactive Component Styles */
+
+/* Header Navbar Styles */
+.custom-navbar {
+  background: var(--bg-nav) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  z-index: 1040;
+}
+
+.brand-logo {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-badge {
+  background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Glassmorphic Cards */
+.app-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.app-card:hover {
+  box-shadow: var(--glass-shadow-hover);
+  border-color: var(--border-glow);
+  transform: translateY(-3px);
+}
+
+.app-card-header {
+  background: linear-gradient(135deg, var(--accent-teal), var(--accent-cyan));
+  color: #ffffff;
+  padding: 1.25rem 1.75rem;
+  border: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.page-intro {
+  margin-bottom: 2rem;
+}
+
+.page-intro h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: -0.03em;
+}
+
+.eyebrow {
+  display: inline-block;
+  color: var(--accent-teal);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+/* Primary Action Buttons */
+.primary-action {
+  background: linear-gradient(135deg, var(--accent-teal), #0f766e);
+  border: none;
+  color: #ffffff;
+  padding: 0.7rem 1.4rem;
+  font-weight: 700;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+  transition: all 0.25s ease;
+}
+
+.primary-action:hover, .primary-action:focus {
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(13, 148, 136, 0.45);
+}
+
+/* Interactive Body Diagram Selector */
+.body-map-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.body-region-btn {
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.body-region-btn:hover, .body-region-btn.active {
+  background: var(--accent-teal);
+  color: white;
+  border-color: var(--accent-teal);
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+  transform: scale(1.04);
+}
+
+/* Audio Visualizer & Voice Dictation */
+.voice-visualizer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 10px;
+  background: rgba(13, 148, 136, 0.1);
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.sound-bar {
+  width: 4px;
+  background: var(--accent-teal);
+  border-radius: 2px;
+  animation: soundWave 0.8s ease-in-out infinite alternate;
+}
+
+.sound-bar:nth-child(1) { animation-delay: 0.1s; }
+.sound-bar:nth-child(2) { animation-delay: 0.3s; }
+.sound-bar:nth-child(3) { animation-delay: 0.2s; }
+.sound-bar:nth-child(4) { animation-delay: 0.4s; }
+.sound-bar:nth-child(5) { animation-delay: 0.15s; }
+
+/* Preset Symptom Chips */
+.symptom-chip {
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  color: var(--text-main);
+  border-radius: 20px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.symptom-chip:hover {
+  background: var(--accent-cyan);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+/* Chat Messages */
+.chat-messages {
+  min-height: 280px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .chat-messages {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.message-row {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.message-row.user {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 82%;
+  padding: 0.9rem 1.2rem;
+  border-radius: 18px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.message-row.user .message-bubble {
+  background: linear-gradient(135deg, var(--accent-teal), #0f766e);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.message-row:not(.user) .message-bubble {
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+/* Interactive Vital Sliders & Gauges */
+.vital-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.vital-card:hover {
+  border-color: var(--accent-teal);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.vital-slider {
+  accent-color: var(--accent-teal);
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* Quick Prescription Pills */
+.med-chip {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: var(--text-main);
+  border-radius: 12px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.med-chip:hover, .med-chip.selected {
+  background: var(--accent-emerald);
+  color: white;
+  transform: scale(1.03);
+}
+
+/* Simulated Tele-ICU ECG Monitor */
+.ecg-canvas-container {
+  background: #090d16;
+  border-radius: 16px;
+  padding: 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ecg-line {
+  stroke: #10b981;
+  stroke-width: 2.5;
+  fill: none;
+  stroke-dasharray: 1000;
+  animation: ecgScan 4s linear infinite;
+}
+
+/* Notification Drawer Dropdown */
+.notif-drawer {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 340px;
+  max-height: 420px;
+  overflow-y: auto;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow-hover);
+  padding: 1rem;
+  z-index: 1050;
+  margin-top: 0.5rem;
+}
+
+.notif-item {
+  padding: 0.75rem;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.notif-item:hover {
+  background: rgba(13, 148, 136, 0.08);
+}
+
+/* Interactive GIS District Map Zone Pill */
+.gis-zone-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.gis-zone-card:hover, .gis-zone-card.selected {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.25);
+  transform: translateY(-2px);
+}
