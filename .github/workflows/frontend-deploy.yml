@@ -7,35 +7,45 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js Environment
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'swasthya_mitra_app/frontend/package-lock.json'
 
       - name: Install Frontend Dependencies
         run: |
           cd swasthya_mitra_app/frontend
           npm ci
 
-      - name: Build Optimized React Production App
+      - name: Build React App
         run: |
           cd swasthya_mitra_app/frontend
           CI=false npm run build
 
-      - name: Deploy Build Bundle to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          folder: swasthya_mitra_app/frontend/build
-          branch: gh-pages
+          path: 'swasthya_mitra_app/frontend/build'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
