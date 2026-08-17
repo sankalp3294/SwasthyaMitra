@@ -23,7 +23,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('session_token');
-      window.location.href = '/login';
+      window.location.href = `${process.env.PUBLIC_URL || ''}/login`;
     }
     return Promise.reject(error);
   }

@@ -44,7 +44,7 @@ function App() {
   if (!ready) return <div className="d-flex justify-content-center align-items-center min-vh-100"><Spinner animation="border" variant="teal" /></div>;
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL || ''}>
       <AppContent 
         isAuthenticated={isAuthenticated} 
         onLogout={clearSession} 
