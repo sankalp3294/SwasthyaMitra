@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'swasthya_mitra_app/frontend/**'
-      - '.github/workflows/frontend-deploy.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
