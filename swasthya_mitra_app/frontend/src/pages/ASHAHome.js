@@ -27,6 +27,76 @@ export default function ASHAHome() {
     appointment_date: ''
   });
 
+  // ASHA Community Emergency SOS Dispatch State
+  const [showAshaSosModal, setShowAshaSosModal] = useState(false);
+  const [ashaSosForm, setAshaSosForm] = useState({
+    phone_number: '',
+    patient_name: '',
+    emergency_type: 'Severe Chest Pain / Cardiac Emergency',
+    location: 'Swasthya Nagar Ward #4',
+    vitals: 'BP 130/85, Pulse 92, Oxygen 96%'
+  });
+  const [ashaSosCountdown, setAshaSosCountdown] = useState(null);
+  const [ashaSosIntervalId, setAshaSosIntervalId] = useState(null);
+  const [ashaSosResult, setAshaSosResult] = useState(null);
+  const [ashaSosSubmitting, setAshaSosSubmitting] = useState(false);
+  const [ashaSosRetractedMsg, setAshaSosRetractedMsg] = useState('');
+
+  const triggerAshaSOSCountdown = (e) => {
+    if (e) e.preventDefault();
+    const cleanPhone = ashaSosForm.phone_number.replace(/\D/g, '').slice(-10);
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setError('Please enter a valid 10-digit patient contact number');
+      return;
+    }
+    setError('');
+    setAshaSosRetractedMsg('');
+    setAshaSosCountdown(10);
+
+    if (ashaSosIntervalId) clearInterval(ashaSosIntervalId);
+
+    let count = 10;
+    const timer = setInterval(() => {
+      count -= 1;
+      setAshaSosCountdown(count);
+      if (count <= 0) {
+        clearInterval(timer);
+        setAshaSosCountdown(null);
+        executeAshaSOSDispatch(cleanPhone);
+      }
+    }, 1000);
+    setAshaSosIntervalId(timer);
+  };
+
+  const cancelAndRetractAshaSOS = () => {
+    if (ashaSosIntervalId) clearInterval(ashaSosIntervalId);
+    setAshaSosCountdown(null);
+    setAshaSosIntervalId(null);
+    setAshaSosResult(null);
+    setAshaSosRetractedMsg('✅ ASHA Community Emergency SOS Signal successfully RETRACTED & CANCELED within 10-second safety window.');
+  };
+
+  const executeAshaSOSDispatch = async (cleanPhone) => {
+    if (ashaSosIntervalId) clearInterval(ashaSosIntervalId);
+    setAshaSosCountdown(null);
+    setAshaSosSubmitting(true);
+    setError('');
+    const targetPhone = cleanPhone || ashaSosForm.phone_number.replace(/\D/g, '').slice(-10) || '9876543210';
+    try {
+      const res = await ashaAPI.dispatchEmergency({
+        ...ashaSosForm,
+        phone_number: targetPhone
+      });
+      setAshaSosResult(res.data);
+      setSuccessMsg(`🚨 ASHA Community SOS Pass Generated! Code: ${res.data.pass_code}`);
+      loadDashboard();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Failed to dispatch ASHA emergency response unit.');
+    } finally {
+      setAshaSosSubmitting(false);
+    }
+  };
+
   const loadDashboard = async () => {
     setLoading(true);
     try {
@@ -120,6 +190,30 @@ export default function ASHAHome() {
 
   return (
     <Container className="py-4 fade-slide-up">
+      {/* 🚨 ASHA WORKER 24/7 COMMUNITY EMERGENCY SOS DESK */}
+      <Alert variant="danger" className="border-0 shadow-lg rounded-4 p-3 mb-4 bg-danger text-white d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div className="d-flex align-items-center gap-3">
+          <div className="bg-white text-danger p-2.5 rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0">
+            <span className="fs-4 animate-pulse">🚑</span>
+          </div>
+          <div>
+            <div className="fw-extrabold text-uppercase letter-spacing-1 fs-6 text-white">
+              🚨 ASHA COMMUNITY EMERGENCY SOS DISPATCH DESK
+            </div>
+            <div className="small text-white opacity-90">
+              When a villager/patient calls in critical condition, trigger Fast-Track SOS to reserve hospital ER bed & ambulance instantly.
+            </div>
+          </div>
+        </div>
+        <Button 
+          variant="light" 
+          className="text-danger fw-extrabold px-3.5 py-2 rounded-pill shadow-sm fs-7 d-flex align-items-center gap-2 ms-auto"
+          onClick={() => { setShowAshaSosModal(true); setAshaSosResult(null); }}
+        >
+          ⚡ 1-Click Community Emergency SOS
+        </Button>
+      </Alert>
+
       <div className="page-intro mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3 p-4 rounded-4"
            style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(13, 148, 136, 0.1) 100%)', border: '1px solid var(--border-color)' }}>
         <div>
@@ -424,6 +518,200 @@ export default function ASHAHome() {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+      {/* 🚨 ASHA WORKER COMMUNITY EMERGENCY SOS DISPATCH MODAL */}
+      <Modal show={showAshaSosModal} onHide={() => { setShowAshaSosModal(false); setAshaSosResult(null); }} centered className="rounded-4">
+        <Modal.Header closeButton className="bg-danger text-white border-0">
+          <Modal.Title className="fw-extrabold fs-5 d-flex align-items-center gap-2">
+            🚑 ASHA Worker 1-Click Community Emergency SOS
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="p-4">
+          {ashaSosRetractedMsg && (
+            <Alert variant="success" className="rounded-3 border-0 shadow-sm mb-3 text-center fw-bold" dismissible onClose={() => setAshaSosRetractedMsg('')}>
+              {ashaSosRetractedMsg}
+            </Alert>
+          )}
+
+          {ashaSosCountdown !== null ? (
+            /* 10-Second Countdown Timer */
+            <div className="bg-danger text-white p-4 rounded-4 text-center shadow-lg animate-pulse">
+              <Badge bg="white" text="danger" className="fs-7 px-3 py-1.5 rounded-pill mb-2 fw-extrabold shadow-sm">
+                🚨 RETRACTABLE ASHA COMMUNITY SOS TRIGGERED
+              </Badge>
+              <h1 className="display-2 fw-extrabold font-monospace mb-2 text-white letter-spacing-1">
+                00:{String(ashaSosCountdown).padStart(2, '0')}
+              </h1>
+              <p className="fw-semibold mb-3 fs-6">
+                Dispatching GPS Ambulance & reserving Hospital ER Bed for community patient in <strong className="text-warning fs-5">{ashaSosCountdown} seconds</strong>...
+              </p>
+
+              <div className="progress mb-4 bg-black bg-opacity-25" style={{ height: '12px' }}>
+                <div 
+                  className="progress-bar bg-warning progress-bar-striped progress-bar-animated" 
+                  style={{ width: `${(ashaSosCountdown / 10) * 100}%`, transition: 'width 1s linear' }}
+                ></div>
+              </div>
+
+              <div className="d-flex flex-column gap-2">
+                <Button 
+                  variant="light" 
+                  size="lg"
+                  className="text-danger fw-extrabold rounded-pill py-2.5 shadow fs-6 d-flex align-items-center justify-content-center gap-2"
+                  onClick={cancelAndRetractAshaSOS}
+                >
+                  ❌ CANCEL & RETRACT SOS SIGNAL (Accidental Trigger)
+                </Button>
+                <Button 
+                  variant="outline-light" 
+                  size="sm" 
+                  className="rounded-pill fw-semibold border-white opacity-90 mt-1"
+                  onClick={() => executeAshaSOSDispatch()}
+                >
+                  ⚡ DISPATCH IMMEDIATELY (Skip 10s Countdown)
+                </Button>
+              </div>
+            </div>
+          ) : ashaSosResult ? (
+            /* Live ASHA Emergency Pass Card */
+            <div className="bg-danger-subtle p-3 rounded-4 border border-danger">
+              <div className="text-center mb-3">
+                <Badge bg="danger" className="fs-7 px-3 py-1.5 rounded-pill mb-1">
+                  🚨 ASHA COMMUNITY EMERGENCY DISPATCHED
+                </Badge>
+                <h4 className="fw-extrabold text-danger mb-0 font-monospace">
+                  {ashaSosResult.pass_code}
+                </h4>
+                <small className="text-muted">Assigned ASHA Worker: {ashaSosResult.asha_worker_name}</small>
+              </div>
+
+              <div className="bg-white p-3 rounded-3 shadow-sm mb-3">
+                <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
+                  <span className="fw-bold text-dark fs-6">👤 Patient Name:</span>
+                  <span className="fw-extrabold text-danger">{ashaSosResult.patient_name}</span>
+                </div>
+                <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
+                  <span className="fw-bold text-dark fs-6">🚑 GPS Ambulance Unit:</span>
+                  <span className="fw-bold text-danger">{ashaSosResult.ambulance_unit}</span>
+                </div>
+                <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
+                  <span className="fw-bold text-dark fs-6">⏳ Estimated ETA:</span>
+                  <Badge bg="warning" text="dark" className="fs-6 px-2.5">
+                    {ashaSosResult.eta_minutes} MINUTES AWAY
+                  </Badge>
+                </div>
+                <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
+                  <span className="fw-bold text-dark fs-6">🛏️ Hospital ER Bay:</span>
+                  <span className="fw-bold text-teal">{ashaSosResult.er_bay_number}</span>
+                </div>
+                <div className="d-flex align-items-center justify-content-between">
+                  <span className="fw-bold text-dark fs-6">🏥 Destination Hospital:</span>
+                  <span className="fw-semibold text-truncate ms-2" style={{ maxWidth: '180px' }}>{ashaSosResult.hospital_name}</span>
+                </div>
+              </div>
+
+              <div className="d-flex flex-column gap-2">
+                <a 
+                  href={`tel:${ashaSosResult.ambulance_driver_contact}`} 
+                  className="btn btn-danger w-100 fw-bold rounded-pill py-2 text-decoration-none d-flex align-items-center justify-content-center gap-1.5"
+                >
+                  📞 Call Ambulance Driver ({ashaSosResult.ambulance_driver_contact})
+                </a>
+                <Button 
+                  variant="outline-danger" 
+                  className="rounded-pill fw-bold py-1.5 fs-7"
+                  onClick={cancelAndRetractAshaSOS}
+                >
+                  ❌ Retract & Cancel Emergency SOS
+                </Button>
+              </div>
+            </div>
+          ) : (
+            /* ASHA Community Emergency SOS Dispatch Form */
+            <Form onSubmit={triggerAshaSOSCountdown}>
+              <Alert variant="warning" className="p-2 fs-7 rounded-3 border-0 mb-3">
+                ⚡ <strong>ASHA Emergency Protocol:</strong> As an ASHA worker, submitting this form immediately dispatches a GPS Ambulance to the village and reserves an ER Trauma bed at the district hospital.
+              </Alert>
+
+              <Form.Group className="mb-2">
+                <Form.Label className="fw-semibold small mb-1">Patient Emergency Mobile Number <span className="text-danger">*</span></Form.Label>
+                <Form.Control
+                  type="tel"
+                  placeholder="Patient 10-digit mobile number"
+                  value={ashaSosForm.phone_number}
+                  onChange={(e) => setAshaSosForm({ ...ashaSosForm, phone_number: e.target.value })}
+                  required
+                  className="rounded-3 border-2"
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-2">
+                <Form.Label className="fw-semibold small mb-1">Patient Full Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Patient full name"
+                  value={ashaSosForm.patient_name}
+                  onChange={(e) => setAshaSosForm({ ...ashaSosForm, patient_name: e.target.value })}
+                  className="rounded-3 border-2"
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-2">
+                <Form.Label className="fw-semibold small mb-1">Emergency Condition / Crisis Type <span className="text-danger">*</span></Form.Label>
+                <Form.Select
+                  value={ashaSosForm.emergency_type}
+                  onChange={(e) => setAshaSosForm({ ...ashaSosForm, emergency_type: e.target.value })}
+                  className="rounded-3 border-2 fw-semibold"
+                >
+                  <option value="High-Risk Maternity Labor Emergency">🤰 High-Risk Maternity Labor & Delivery Emergency</option>
+                  <option value="Severe Chest Pain / Cardiac Emergency">🫀 Severe Chest Pain / Cardiac Arrest</option>
+                  <option value="Snake Bite / Severe Poisoning">🐍 Snake Bite / Poisoning Emergency</option>
+                  <option value="Severe Road Accident & Heavy Bleeding">🚨 Severe Road Trauma & Heavy Bleeding</option>
+                  <option value="High Fever, Convulsions & Unconscious">⚡ High Fever, Convulsions & Unconscious Infant/Adult</option>
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group className="mb-2">
+                <Form.Label className="fw-semibold small mb-1">Village Location / Ward Address</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="e.g. House 14, Swasthya Nagar Ward #4"
+                  value={ashaSosForm.location}
+                  onChange={(e) => setAshaSosForm({ ...ashaSosForm, location: e.target.value })}
+                  className="rounded-3 border-2"
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold small mb-1">Field Vitals / Assessment</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="e.g. BP 140/90, Pulse 105, Patient in severe pain"
+                  value={ashaSosForm.vitals}
+                  onChange={(e) => setAshaSosForm({ ...ashaSosForm, vitals: e.target.value })}
+                  className="rounded-3 border-2"
+                />
+              </Form.Group>
+
+              <Button 
+                type="submit" 
+                variant="danger" 
+                disabled={ashaSosSubmitting}
+                className="w-100 py-2.5 rounded-3 fw-extrabold fs-6 shadow-sm d-flex align-items-center justify-content-center gap-2"
+              >
+                {ashaSosSubmitting ? <Spinner size="sm" /> : null}
+                TRIGGER 10s RETRACTABLE ASHA COMMUNITY SOS DISPATCH ⚡
+              </Button>
+            </Form>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer className="border-0 pt-0">
+          <Button variant="secondary" className="w-100 rounded-3 fw-bold" onClick={() => { setShowAshaSosModal(false); setAshaSosResult(null); }}>
+            Close Emergency Panel
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

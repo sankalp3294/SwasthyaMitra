@@ -20,6 +20,7 @@ class PatientBase(BaseModel):
     location: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    is_profile_complete: Optional[bool] = False
 
 
 class PatientCreate(PatientBase):
@@ -36,11 +37,13 @@ class PatientUpdate(BaseModel):
     medical_history: Optional[str] = None
     language_preference: Optional[str] = None
     location: Optional[str] = None
+    is_profile_complete: Optional[bool] = None
 
 
 class PatientResponse(PatientBase):
     id: int
     phone_number: str
+    is_profile_complete: bool = False
     created_at: datetime
 
     class Config:
@@ -170,6 +173,9 @@ class HospitalCreate(HospitalBase):
 class HospitalResponse(HospitalBase):
     id: int
     is_active: bool
+    distance_km: Optional[float] = None
+    emergency_beds_available: Optional[int] = 8
+    phone_number: Optional[str] = "1800-108-0000"
 
     class Config:
         from_attributes = True
@@ -404,3 +410,69 @@ class MedicineInventoryResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ===== Emergency Fast-Track Dispatch Schemas =====
+class EmergencyDispatchCreate(BaseModel):
+    phone_number: str
+    patient_name: Optional[str] = "Emergency Patient"
+    emergency_type: str = "Severe Chest Pain / Cardiac Emergency"
+    location: Optional[str] = "Swasthya Nagar"
+    notes: Optional[str] = None
+
+
+class EmergencyDispatchResponse(BaseModel):
+    success: bool = True
+    emergency_pass_code: str
+    patient_name: str
+    phone_number: str
+    hospital_id: int
+    hospital_name: str
+    hospital_address: str
+    er_bay_number: str
+    ambulance_unit: str
+    ambulance_driver_contact: str
+    eta_minutes: int
+    assigned_doctor_name: str
+    triage_level: str = "URGENT"
+    status: str = "DISPATCHED"
+    created_at: str
+
+
+class EmergencyCancelRequest(BaseModel):
+    emergency_pass_code: str
+
+
+# ===== Lab Test Schemas =====
+class LabTestCreate(BaseModel):
+    patient_id: int
+    test_name: str
+    test_category: Optional[str] = "General Pathology"
+    case_id: Optional[int] = None
+    appointment_id: Optional[int] = None
+    ordered_by: Optional[str] = "Attending Physician"
+
+
+class LabTestResultUpdate(BaseModel):
+    result_summary: str
+    result_notes: Optional[str] = None
+    status: str = "COMPLETED"
+
+
+class LabTestResponse(BaseModel):
+    id: int
+    patient_id: int
+    case_id: Optional[int] = None
+    appointment_id: Optional[int] = None
+    test_name: str
+    test_category: str
+    status: str
+    result_summary: Optional[str] = None
+    result_notes: Optional[str] = None
+    ordered_by: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+

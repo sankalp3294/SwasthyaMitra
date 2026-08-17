@@ -51,8 +51,20 @@ async def update_patient_profile(
     
     # Update fields
     update_dict = update_data.dict(exclude_unset=True)
+    # Ensure patient cannot manually overwrite medical_history from profile form
+    update_dict.pop("medical_history", None)
+    
     for key, value in update_dict.items():
         setattr(patient, key, value)
+    
+    if not patient.health_id:
+        patient.health_id = f"SM-PAT-{patient.phone_number[-6:] if patient.phone_number else patient.id:06d}"
+    
+    # Mark profile complete when basic info is provided
+    if patient.name and not patient.name.startswith("Patient ") and patient.age and patient.gender:
+        patient.is_profile_complete = True
+    elif "is_profile_complete" not in update_dict and patient.name:
+        patient.is_profile_complete = True
     
     db.commit()
     db.refresh(patient)

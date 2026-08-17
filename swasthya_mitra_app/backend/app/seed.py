@@ -37,12 +37,56 @@ def seed_demo_data(db: Session) -> None:
                 longitude=77.2177,
                 phone_number="1800-000-1002"
             ),
+            Hospital(
+                name="Apex District Hospital & Trauma Center",
+                hospital_type="District Hospital & ER",
+                address="45 Hospital Ring Road, District Center",
+                zone="District Center",
+                district="Demo District",
+                state="India",
+                latitude=28.5800,
+                longitude=77.2300,
+                phone_number="1800-000-1003"
+            ),
+            Hospital(
+                name="Sanjivani Rural Healthcare Clinic",
+                hospital_type="Sub-District Health Centre",
+                address="19 Green Valley Road, Rural Zone 2",
+                zone="Green Valley",
+                district="Demo District",
+                state="India",
+                latitude=28.6500,
+                longitude=77.1800,
+                phone_number="1800-000-1004"
+            ),
+            Hospital(
+                name="Metro Care Super-Specialty ER",
+                hospital_type="Super Specialty Hospital",
+                address="102 Metro Expressway, Metro Central",
+                zone="Metro Central",
+                district="Demo District",
+                state="India",
+                latitude=28.6000,
+                longitude=77.1900,
+                phone_number="1800-000-1005"
+            ),
         ]
         db.add_all(hospitals)
         db.flush()
 
+        dept_names = [
+            ("General Medicine", "General consultation and primary care"),
+            ("Ophthalmology (Eye Care)", "Eye specialist OPD, cataract, vision testing"),
+            ("Cardiology (Heart Care)", "Heart specialist OPD, BP, cardiac evaluation"),
+            ("Orthopedics (Bone & Joint)", "Bone, joint, spine, and fracture OPD"),
+            ("Dermatology (Skin Care)", "Skin, allergic rash, and skin lesion OPD"),
+            ("ENT (Ear Nose Throat)", "Ear, nose, throat, and sinus specialist OPD"),
+            ("Pediatrics (Child Care)", "Child specialist and infant care OPD"),
+        ]
+
         for hospital in hospitals:
-            db.add(Department(hospital_id=hospital.id, name="General Medicine", description="General consultation"))
+            for d_name, d_desc in dept_names:
+                db.add(Department(hospital_id=hospital.id, name=d_name, description=d_desc))
             for offset in range(0, 5):
                 slot_date = (date.today() + timedelta(days=offset)).isoformat()
                 for start, end in (("09:00", "09:30"), ("10:00", "10:30"), ("11:00", "11:30"), ("14:00", "14:30")):
@@ -65,13 +109,13 @@ def seed_demo_data(db: Session) -> None:
             db.add(StaffCredential(user_id=user.id, email=email, password_hash=hash_password("Demo@123")))
         if role == "doctor" and not db.query(Doctor).filter(Doctor.user_id == user.id).first():
             hospital = db.query(Hospital).first()
-            dept = db.query(Department).first()
+            dept = db.query(Department).filter(Department.hospital_id == hospital.id, Department.name.like("%Ophthalmology%")).first() or db.query(Department).first()
             db.add(Doctor(
                 user_id=user.id,
-                name="Dr. Demo Doctor",
-                qualification="MBBS, MD",
-                specialization="General Medicine",
-                registration_number="MED-12345",
+                name="Dr. Sunita Verma (Eye Specialist)",
+                qualification="MBBS, MS Ophthalmology",
+                specialization="Ophthalmology (Eye Specialist)",
+                registration_number="EYE-98765",
                 hospital_id=hospital.id if hospital else None,
                 department_id=dept.id if dept else None
             ))
@@ -90,12 +134,12 @@ def seed_demo_data(db: Session) -> None:
     hospital = db.query(Hospital).first()
     doctor = db.query(Doctor).first()
     slot = db.query(Slot).first()
-
+    # Seed Demo Patients & Cases
     patients_data = [
         {
             "phone": "9876543210",
             "name": "Ramesh Kumar",
-            "age": 45,
+            "age": 35,
             "gender": "Male",
             "email": "ramesh.kumar@example.com",
             "address": "House 42, Swasthya Nagar, District Demo",
@@ -108,6 +152,20 @@ def seed_demo_data(db: Session) -> None:
         },
         {
             "phone": "9876543211",
+            "name": "Anil Verma (Eye Patient)",
+            "age": 42,
+            "gender": "Male",
+            "email": "anil.verma@example.com",
+            "address": "House 14, Eye Care Ward, Swasthya Nagar",
+            "blood_group": "B+",
+            "medical_history": "Computer eye strain, uses reading glasses",
+            "complaint": "Eye sight issue: Severe eye redness, blurred vision, watery eyes, and acute eye pain for 2 days.",
+            "triage": "MODERATE",
+            "status": "CONFIRMED",
+            "notes": None
+        },
+        {
+            "phone": "9876543216",
             "name": "Sunita Devi",
             "age": 38,
             "gender": "Female",
@@ -115,7 +173,7 @@ def seed_demo_data(db: Session) -> None:
             "address": "Ward 5, Wellness Ward, District Demo",
             "blood_group": "B+",
             "medical_history": "Asthma in childhood",
-            "complaint": "Severe headache, dizziness, and fatigue for 2 days.",
+            "complaint": "Severe throbbing headache, dizziness, and nausea for 2 days.",
             "triage": "URGENT",
             "status": "REQUESTED",
             "notes": None
@@ -129,7 +187,7 @@ def seed_demo_data(db: Session) -> None:
             "address": "Plot 19, Swasthya Nagar",
             "blood_group": "A+",
             "medical_history": "Type 2 Diabetes, Regular checkup needed",
-            "complaint": "Routine health checkup and joint pain.",
+            "complaint": "Routine health checkup and joint knee stiffness.",
             "triage": "LOW",
             "status": "COMPLETED",
             "notes": json.dumps({
@@ -142,6 +200,34 @@ def seed_demo_data(db: Session) -> None:
                 "referral": "None required",
                 "follow_up_date": (date.today() + timedelta(days=7)).isoformat()
             })
+        },
+        {
+            "phone": "9876543217",
+            "name": "Priya Sharma",
+            "age": 28,
+            "gender": "Female",
+            "email": "priya.sharma@example.com",
+            "address": "Flat 12, Central Zone",
+            "blood_group": "AB+",
+            "medical_history": "Acidity and gastritis history",
+            "complaint": "Acute stomach ache, acidity, and digestive discomfort after dinner.",
+            "triage": "MODERATE",
+            "status": "REQUESTED",
+            "notes": None
+        },
+        {
+            "phone": "9876543218",
+            "name": "Rajesh Verma",
+            "age": 45,
+            "gender": "Male",
+            "email": "rajesh.verma@example.com",
+            "address": "House 108, North District",
+            "blood_group": "O-",
+            "medical_history": "Seasonal bronchitis",
+            "complaint": "Sudden chest tightness and shortness of breath when walking.",
+            "triage": "URGENT",
+            "status": "ATTENDED",
+            "notes": None
         }
     ]
 
@@ -164,7 +250,8 @@ def seed_demo_data(db: Session) -> None:
                 blood_group=pdata["blood_group"],
                 medical_history=pdata["medical_history"],
                 phone_number=pdata["phone"],
-                location=hospital.zone if hospital else "Swasthya Nagar"
+                location=hospital.zone if hospital else "Swasthya Nagar",
+                is_profile_complete=True
             )
             db.add(patient)
             db.flush()

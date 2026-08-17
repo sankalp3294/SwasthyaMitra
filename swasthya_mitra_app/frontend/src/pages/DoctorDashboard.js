@@ -63,8 +63,9 @@ export default function DoctorDashboard() {
   const [showResultModal, setShowResultModal] = useState(false);
   const [testResultSummary, setTestResultSummary] = useState('');
   const [testResultNotes, setTestResultNotes] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
   const [queueFilter, setQueueFilter] = useState('ALL');
+  const [opdSpecialtyFilter, setOpdSpecialtyFilter] = useState('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Form State for Consultation
   const [diagnosis, setDiagnosis] = useState('');
@@ -350,35 +351,74 @@ export default function DoctorDashboard() {
               </Button>
             </div>
           </div>
+
+          {/* 👁️ SPECIALIST OPD DEPARTMENT QUEUE SELECTOR BAR */}
+          <div className="bg-light p-2.5 px-3 border-top border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <span className="fw-bold text-dark fs-7 d-flex align-items-center gap-1.5">
+              🏥 Specialist OPD Department Queue:
+            </span>
+            <div className="d-flex align-items-center gap-1.5 flex-wrap">
+              {[
+                { id: 'ALL', label: 'All OPD Queues' },
+                { id: 'EYE', label: '👁️ Ophthalmology (Eye Care)' },
+                { id: 'HEART', label: '🫀 Cardiology (Heart Care)' },
+                { id: 'BONE', label: '🦴 Orthopedics (Bone & Joint)' },
+                { id: 'SKIN', label: '✨ Dermatology (Skin Care)' },
+                { id: 'GENERAL', label: '🩺 General Medicine' },
+              ].map((opd) => (
+                <Button
+                  key={opd.id}
+                  size="sm"
+                  variant={opdSpecialtyFilter === opd.id ? 'teal' : 'outline-secondary'}
+                  className={`rounded-pill px-2.5 py-0.5 fs-8 fw-semibold ${opdSpecialtyFilter === opd.id ? 'bg-teal text-white shadow-sm' : ''}`}
+                  onClick={() => setOpdSpecialtyFilter(opd.id)}
+                >
+                  {opd.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         </Card.Header>
         <Card.Body className="p-0">
           <Table responsive hover className="mb-0 align-middle">
             <thead className="bg-body-tertiary">
               <tr>
-                <th>Digital Health ID & Patient</th>
-                <th>Scheduled Date & Time</th>
+                <th>Patient Details & Health ID</th>
+                <th>Presenting Symptoms & Specialist OPD</th>
+                <th>Scheduled Time</th>
                 <th>Status</th>
-                <th>Paperless Record & Actions</th>
+                <th>Actions & EHR</th>
               </tr>
             </thead>
             <tbody>
               {(() => {
                 const filteredAppts = (data?.appointments || []).filter((a) => {
-                  const matchSearch = String(a.patient_id).includes(searchTerm) || 
-                    String(a.id).includes(searchTerm) || 
-                    (a.notes && a.notes.toLowerCase().includes(searchTerm.toLowerCase()));
+                  const searchLower = searchTerm.toLowerCase();
+                  const matchSearch = 
+                    (a.patient_name && a.patient_name.toLowerCase().includes(searchLower)) ||
+                    (a.symptoms && a.symptoms.toLowerCase().includes(searchLower)) ||
+                    (a.health_id && a.health_id.toLowerCase().includes(searchLower)) ||
+                    String(a.patient_id).includes(searchTerm) || 
+                    String(a.id).includes(searchTerm);
                   
                   if (!matchSearch) return false;
-                  if (queueFilter === 'CONFIRMED') return a.appointment_status === 'CONFIRMED' || a.appointment_status === 'ATTENDED';
-                  if (queueFilter === 'MISSED') return a.appointment_status?.includes('NO_SHOW') || a.check_in_status === 'NO_SHOW';
+                  if (queueFilter === 'CONFIRMED' && !(a.appointment_status === 'CONFIRMED' || a.appointment_status === 'ATTENDED')) return false;
+                  if (queueFilter === 'MISSED' && !(a.appointment_status?.includes('NO_SHOW') || a.check_in_status === 'NO_SHOW')) return false;
+
+                  // Filter by Specialist OPD Department
+                  if (opdSpecialtyFilter === 'EYE' && !a.symptoms?.toLowerCase().includes('eye') && !a.specialty_opd?.includes('Ophthalmology')) return false;
+                  if (opdSpecialtyFilter === 'HEART' && !a.symptoms?.toLowerCase().includes('chest') && !a.specialty_opd?.includes('Cardiology')) return false;
+                  if (opdSpecialtyFilter === 'BONE' && !a.symptoms?.toLowerCase().includes('joint') && !a.symptoms?.toLowerCase().includes('knee') && !a.specialty_opd?.includes('Orthopedics')) return false;
+                  if (opdSpecialtyFilter === 'SKIN' && !a.symptoms?.toLowerCase().includes('skin') && !a.symptoms?.toLowerCase().includes('rash') && !a.specialty_opd?.includes('Dermatology')) return false;
+
                   return true;
                 });
 
                 if (!filteredAppts.length) {
                   return (
                     <tr>
-                      <td colSpan="4" className="text-center py-4 text-muted">
-                        No patient appointments found matching filters.
+                      <td colSpan="5" className="text-center py-4 text-muted">
+                        No patient appointments found matching selected OPD department filter.
                       </td>
                     </tr>
                   );
@@ -392,33 +432,41 @@ export default function DoctorDashboard() {
                     }
                   } catch (e) {}
 
+                  const isFastTrack = (a.symptoms && a.symptoms.includes('FAST-TRACK')) || (a.notes && a.notes.includes('FAST-TRACK')) || a.triage_level === 'URGENT';
+
                   return (
-                    <tr key={a.id}>
+                    <tr key={a.id} className={isFastTrack ? 'table-danger' : ''}>
                       <td>
                         <div className="d-flex align-items-center gap-2">
-                          <span className="fw-bold fs-6">Patient #{a.patient_id}</span>
-                          <Badge bg="secondary" className="font-monospace">
-                            SM-PAT-{String(a.patient_id).padStart(6, '0')}
+                          <span className="fw-extrabold text-teal fs-6">{a.patient_name || `Patient #${a.patient_id}`}</span>
+                          <Badge bg={isFastTrack ? 'danger' : 'secondary'} className="font-monospace">
+                            {a.health_id || `SM-PAT-${String(a.patient_id).padStart(6, '0')}`}
                           </Badge>
                         </div>
-                        <small className="text-muted">Case ID #{a.case_id} · Appt #{a.id}</small>
-                        {consultationInfo?.diagnosis && (
-                          <div className="mt-1">
-                            <span className="badge bg-success-subtle text-success border border-success fw-normal">
-                              Diagnosis: {consultationInfo.diagnosis}
-                            </span>
-                          </div>
-                        )}
-                        {consultationInfo?.prescribed_tests?.length > 0 && (
-                          <div className="mt-1">
-                            <span className="badge bg-warning-subtle text-dark border border-warning fw-normal">
-                              🧪 Tests: {consultationInfo.prescribed_tests.join(', ')}
-                            </span>
-                          </div>
-                        )}
+                        <div className="text-muted small mt-0.5">
+                          {a.patient_age ? `${a.patient_age} yrs` : ''} {a.patient_gender ? `· ${a.patient_gender}` : ''} · Appt #{a.id}
+                        </div>
                       </td>
                       <td>
-                        <div>{a.appointment_date}</div>
+                        <div className="fw-semibold text-main mb-1" style={{ maxWidth: '340px' }}>
+                          🩺 {a.symptoms || "High fever and persistent cough for 3 days."}
+                        </div>
+                        <div className="d-flex align-items-center gap-1 mt-1 flex-wrap">
+                          <Badge bg="teal" className="fs-8 px-2 py-1 rounded-pill fw-bold">
+                            {a.specialty_opd || '🩺 General Medicine OPD'}
+                          </Badge>
+                          <Badge bg={isFastTrack ? 'danger' : a.triage_level === 'MODERATE' ? 'warning' : 'info'} className="fs-8">
+                            {isFastTrack ? '🚨 FAST-TRACK CRITICAL' : `${a.triage_level || 'MODERATE'} TRIAGE`}
+                          </Badge>
+                          {consultationInfo?.diagnosis && (
+                            <span className="badge bg-success-subtle text-success border border-success fw-normal fs-8">
+                              Dx: {consultationInfo.diagnosis}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="fw-semibold">{a.appointment_date}</div>
                         <small className="text-muted">{a.appointment_time}</small>
                       </td>
                       <td>

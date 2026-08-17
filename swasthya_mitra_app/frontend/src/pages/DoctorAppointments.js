@@ -198,8 +198,8 @@ export default function DoctorAppointments() {
           <Table responsive hover className="mb-0 align-middle">
             <thead className="bg-light">
               <tr>
-                <th>Patient Ref & ID</th>
-                <th>Attempt & Visit Type</th>
+                <th>Patient Details & Health ID</th>
+                <th>Presenting Symptoms & Visit Type</th>
                 <th>Scheduled Date & Time</th>
                 <th>Check-in Status</th>
                 <th>Doctor Actions & ASHA Control</th>
@@ -216,21 +216,29 @@ export default function DoctorAppointments() {
                   return (
                     <tr key={appt.id} className={isRebooked ? 'table-warning-subtle' : ''}>
                       <td>
-                        <div className="fw-bold fs-6 text-dark">Patient #{appt.patient_id}</div>
-                        <small className="text-muted">Appointment Ref: #{appt.id}</small>
+                        <div className="fw-extrabold text-teal fs-6">{appt.patient_name || `Patient #${appt.patient_id}`}</div>
+                        <div className="d-flex align-items-center gap-1 mt-0.5">
+                          <Badge bg="secondary" className="font-monospace fs-8">
+                            {appt.health_id || `SM-PAT-${String(appt.patient_id).padStart(6, '0')}`}
+                          </Badge>
+                          <small className="text-muted">Appt #{appt.id}</small>
+                        </div>
                       </td>
                       <td>
+                        <div className="fw-semibold text-main mb-1" style={{ maxWidth: '260px' }}>
+                          🩺 {appt.symptoms || "Fever, Body Fatigue, Seasonal Symptoms"}
+                        </div>
                         {isRebooked ? (
                           <div>
-                            <Badge bg="warning" text="dark" className="fs-6 d-inline-block mb-1">
+                            <Badge bg="warning" text="dark" className="fs-7 d-inline-block mb-1">
                               🔄 2nd Appointment (Rebooked)
                             </Badge>
-                            <small className="text-danger d-block fw-semibold">
+                            <small className="text-danger d-block fw-semibold fs-8">
                               ⚠️ Missed 1st visit ({appt.no_show_count || 1} No-Show)
                             </small>
                           </div>
                         ) : (
-                          <Badge bg="secondary">Standard Visit</Badge>
+                          <Badge bg="secondary" className="fs-8">Standard Visit</Badge>
                         )}
                       </td>
                       <td>

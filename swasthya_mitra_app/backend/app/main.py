@@ -10,7 +10,7 @@ from app.config import get_settings
 from app.database import engine, Base
 from app.database import SessionLocal
 from app.seed import seed_demo_data
-from app.api.routes import auth, patients, cases, appointments, hospitals, analytics, asha, dashboards, medications, notifications
+from app.api.routes import auth, patients, cases, appointments, hospitals, analytics, asha, dashboards, medications, notifications, lab
 
 
 def parse_cors_origins(raw_value):
@@ -88,6 +88,7 @@ app.include_router(asha.router)
 app.include_router(dashboards.router)
 app.include_router(medications.router)
 app.include_router(notifications.router)
+app.include_router(lab.router)
 
 
 @app.get("/")

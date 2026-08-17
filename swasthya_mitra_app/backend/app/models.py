@@ -40,6 +40,7 @@ class Patient(Base):
     latitude = Column(Float)
     longitude = Column(Float)
     phone_number = Column(String(20), index=True)
+    is_profile_complete = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

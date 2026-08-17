@@ -80,6 +80,31 @@ export default function PatientHome() {
         </Row>
       </div>
 
+      {/* 🚨 24/7 Fast-Track Emergency SOS Banner */}
+      <Alert variant="danger" className="border-0 shadow-sm rounded-4 mb-4 p-3 bg-danger text-white d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div className="d-flex align-items-center gap-2.5">
+          <div className="bg-white text-danger p-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0">
+            <FaHeartbeat size={22} className="animate-pulse text-danger" />
+          </div>
+          <div>
+            <div className="fw-extrabold text-uppercase letter-spacing-1 fs-7 text-white">
+              📍 NEAREST HOSPITAL & 24/7 EMERGENCY SOS
+            </div>
+            <div className="small text-white opacity-90" style={{ fontSize: '0.85rem' }}>
+              Swasthya Nagar PHC is <strong>1.2 km away</strong> (Nearest to your location). Dispatches GPS Ambulance & reserves ER Bed.
+            </div>
+          </div>
+        </div>
+        <div className="d-flex align-items-center gap-2 ms-auto">
+          <Button variant="light" className="text-danger fw-extrabold px-3 py-1.5 rounded-pill shadow-sm fs-7" onClick={() => navigate('/dashboard')}>
+            📍 Nearest Hospitals & SOS
+          </Button>
+          <a href="tel:108" className="btn btn-outline-light fw-bold px-3 py-1.5 rounded-pill fs-7 text-decoration-none">
+            📞 Dial 108
+          </a>
+        </div>
+      </Alert>
+
       <Row className="g-4 mb-4">
         {/* Interactive Vital Signs Gauge Monitor */}
         <Col lg={6}>

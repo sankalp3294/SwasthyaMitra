@@ -52,7 +52,7 @@ async def list_medications(
 @router.post("/", response_model=MedicineInventoryResponse)
 async def add_medication(
     med_data: MedicineInventoryCreate,
-    _staff: User = Depends(require_roles("doctor", "chief_doctor", "admin")),
+    _staff: User = Depends(require_roles("pharmacist", "doctor", "chief_doctor", "admin")),
     db: Session = Depends(get_db)
 ):
     """Add a new medicine to hospital inventory"""
@@ -79,7 +79,7 @@ async def add_medication(
 async def update_medication_stock(
     med_id: int,
     update_data: MedicineInventoryUpdate,
-    _staff: User = Depends(require_roles("doctor", "chief_doctor", "admin")),
+    _staff: User = Depends(require_roles("pharmacist", "doctor", "chief_doctor", "admin")),
     db: Session = Depends(get_db)
 ):
     """Update stock quantity or details of a medicine"""
@@ -96,10 +96,38 @@ async def update_medication_stock(
     return MedicineInventoryResponse.model_validate(item)
 
 
+@router.post("/dispense/{med_id}")
+async def dispense_medication(
+    med_id: int,
+    quantity: int = Query(1, ge=1),
+    _staff: User = Depends(require_roles("pharmacist", "doctor", "chief_doctor", "admin")),
+    db: Session = Depends(get_db)
+):
+    """Dispense medicine to patient and decrement stock quantity"""
+    item = db.query(MedicineInventory).filter(MedicineInventory.id == med_id).first()
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Medicine item not found")
+    
+    if item.stock_quantity < quantity:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Insufficient stock. Available: {item.stock_quantity}")
+    
+    item.stock_quantity -= quantity
+    db.commit()
+    db.refresh(item)
+    return {
+        "status": "DISPENSED",
+        "medicine_id": item.id,
+        "name": item.name,
+        "quantity_dispensed": quantity,
+        "remaining_stock": item.stock_quantity,
+        "is_low_stock": item.stock_quantity <= item.reorder_level
+    }
+
+
 @router.delete("/{med_id}")
 async def delete_medication(
     med_id: int,
-    _staff: User = Depends(require_roles("doctor", "chief_doctor", "admin")),
+    _staff: User = Depends(require_roles("pharmacist", "doctor", "chief_doctor", "admin")),
     db: Session = Depends(get_db)
 ):
     """Delete a medicine from inventory"""

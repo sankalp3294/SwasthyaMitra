@@ -126,7 +126,8 @@ async def verify_otp(request: OTPVerify, db: Session = Depends(get_db)):
             user_id=user.id,
             health_id=f"SM-PAT-{request.phone_number[-6:]}",
             phone_number=request.phone_number,
-            name=f"Patient {request.phone_number[-4:]}"  # Default display name
+            name=f"Patient {request.phone_number[-4:]}",  # Default display name
+            is_profile_complete=False
         )
         db.add(patient)
         db.flush()
@@ -196,14 +197,18 @@ async def register_patient(
     # Create patient
     patient = Patient(
         user_id=user.id,
+        health_id=f"SM-PAT-{request.phone_number[-6:]}",
         phone_number=request.phone_number,
         name=request.name,
         age=request.age,
         gender=request.gender,
-        language_preference=request.language_preference,
-        location=request.location,
+        address=request.address,
+        blood_group=request.blood_group,
+        language_preference=request.language_preference or "en",
+        location=request.location or "Swasthya Nagar",
         latitude=request.latitude,
-        longitude=request.longitude
+        longitude=request.longitude,
+        is_profile_complete=True
     )
     
     db.add(patient)

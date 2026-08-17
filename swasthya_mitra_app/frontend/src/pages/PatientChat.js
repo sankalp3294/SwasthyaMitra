@@ -48,11 +48,23 @@ export default function PatientChat() {
 
       const triageResponse = await caseAPI.triageCase(caseResponse.data.id, symptomText);
       
+      let specialtyNotice = "";
+      const textLower = symptomText.toLowerCase();
+      if (textLower.includes('eye') || textLower.includes('vision') || textLower.includes('sight') || textLower.includes('cataract')) {
+        specialtyNotice = " 👁️ SPECIALIST OPD ROUTING: Based on your eye symptoms, your case has been directly triaged to OPHTHALMOLOGY (Eye Specialist OPD) under Dr. Sunita Verma (MS Ophthalmology).";
+      } else if (textLower.includes('chest') || textLower.includes('heart') || textLower.includes('bp')) {
+        specialtyNotice = " 🫀 SPECIALIST OPD ROUTING: Based on your cardiac symptoms, your case has been directly triaged to CARDIOLOGY (Heart Specialist OPD).";
+      } else if (textLower.includes('joint') || textLower.includes('bone') || textLower.includes('knee')) {
+        specialtyNotice = " 🦴 SPECIALIST OPD ROUTING: Based on your orthopedic symptoms, your case has been directly triaged to ORTHOPEDICS (Bone & Joint OPD).";
+      } else if (textLower.includes('skin') || textLower.includes('rash') || textLower.includes('itch')) {
+        specialtyNotice = " ✨ SPECIALIST OPD ROUTING: Based on your skin symptoms, your case has been directly triaged to DERMATOLOGY (Skin Care OPD).";
+      }
+
       setMessages((prev) => [
         ...prev, 
         { 
           role: 'assistant', 
-          content: `${triageResponse.data.reasoning}. ${triageResponse.data.recommendations?.[0] || ''}`, 
+          content: `${triageResponse.data.reasoning}. ${triageResponse.data.recommendations?.[0] || ''}${specialtyNotice}`, 
           triage: triageResponse.data.triage_level 
         }
       ]);

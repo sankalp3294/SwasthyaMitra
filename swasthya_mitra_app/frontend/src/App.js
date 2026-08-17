@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Navbar, Container, Nav, Spinner, Badge, Button } from 'react-bootstrap';
 import { 
-  FaSun, FaMoon, FaBell, FaUserMd, FaShieldAlt, 
+  FaSun, FaMoon, FaBell, FaUserMd, FaShieldAlt, FaUser,
   FaHeartbeat, FaSignOutAlt, FaStethoscope, FaUserNurse, FaBrain, FaHospitalUser
 } from 'react-icons/fa';
 import { useAuthStore } from './store/store';
+import { patientsAPI } from './services/api';
+import PatientProfileModal from './components/PatientProfileModal';
 import OTPLogin from './pages/OTPLogin';
 import PatientChat from './pages/PatientChat';
 import PatientDashboard from './pages/PatientDashboard';
@@ -20,6 +22,8 @@ import CMOOverview from './pages/CMOOverview';
 import CMODoctors from './pages/CMODoctors';
 import CMOPatients from './pages/CMOPatients';
 import AdminHome from './pages/AdminHome';
+import PharmacyPortal from './pages/PharmacyPortal';
+import LabPortal from './pages/LabPortal';
 import './App.css';
 
 function App() {
@@ -53,6 +57,29 @@ function App() {
 
 function AppContent({ isAuthenticated, onLogout, theme, toggleTheme }) {
   const { role } = useAuthStore();
+  const [patientProfile, setPatientProfile] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isFirstTimeOnboarding, setIsFirstTimeOnboarding] = useState(false);
+
+  const isPatientRole = role === 'patient' || (!role || (role !== 'doctor' && role !== 'chief_doctor' && role !== 'asha' && role !== 'admin'));
+
+  useEffect(() => {
+    if (isAuthenticated && isPatientRole) {
+      patientsAPI.getCurrentProfile()
+        .then((res) => {
+          const profile = res.data;
+          setPatientProfile(profile);
+          const isPlaceholderName = !profile.name || profile.name.startsWith('Patient ');
+          if (!profile.is_profile_complete || isPlaceholderName) {
+            setIsFirstTimeOnboarding(true);
+            setShowProfileModal(true);
+          }
+        })
+        .catch((err) => {
+          console.warn('Failed to load patient profile:', err);
+        });
+    }
+  }, [isAuthenticated, isPatientRole]);
 
   const redirectPath = () => {
     if (!isAuthenticated) return '/login';
@@ -60,14 +87,33 @@ function AppContent({ isAuthenticated, onLogout, theme, toggleTheme }) {
     if (role === 'chief_doctor') return '/cmo';
     if (role === 'admin') return '/admin';
     if (role === 'asha') return '/asha';
+    if (role === 'pharmacist') return '/pharmacy';
+    if (role === 'lab_technician') return '/lab';
     return '/patient';
   };
 
-  const isPatientRole = role === 'patient' || (!role || (role !== 'doctor' && role !== 'chief_doctor' && role !== 'asha' && role !== 'admin'));
+  const handleProfileSaveSuccess = (updatedProfile) => {
+    setPatientProfile(updatedProfile);
+    setIsFirstTimeOnboarding(false);
+    setShowProfileModal(false);
+  };
+
+  const openProfileManually = () => {
+    setIsFirstTimeOnboarding(false);
+    setShowProfileModal(true);
+  };
 
   return (
     <>
-      {isAuthenticated && <AppNavbar onLogout={onLogout} theme={theme} toggleTheme={toggleTheme} />}
+      {isAuthenticated && (
+        <AppNavbar 
+          onLogout={onLogout} 
+          theme={theme} 
+          toggleTheme={toggleTheme}
+          onOpenProfile={openProfileManually}
+          patientName={patientProfile?.name}
+        />
+      )}
       <main className="fade-slide-up">
         <Routes>
           <Route path="/login" element={<OTPLogin />} />
@@ -132,15 +178,36 @@ function AppContent({ isAuthenticated, onLogout, theme, toggleTheme }) {
             element={isAuthenticated && role === 'asha' ? <ASHAHome /> : <Navigate to={redirectPath()} />} 
           />
 
+          {/* Pharmacy & Path Lab Routes */}
+          <Route 
+            path="/pharmacy" 
+            element={isAuthenticated && (role === 'pharmacist' || role === 'doctor' || role === 'chief_doctor' || role === 'admin') ? <PharmacyPortal /> : <Navigate to={redirectPath()} />} 
+          />
+          <Route 
+            path="/lab" 
+            element={isAuthenticated && (role === 'lab_technician' || role === 'doctor' || role === 'chief_doctor' || role === 'admin') ? <LabPortal /> : <Navigate to={redirectPath()} />} 
+          />
+
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to={redirectPath()} />} />
         </Routes>
       </main>
+
+      {/* Patient Profile Completion & Editing Modal */}
+      {isPatientRole && (
+        <PatientProfileModal
+          show={showProfileModal}
+          onHide={() => setShowProfileModal(false)}
+          profileData={patientProfile}
+          onSaveSuccess={handleProfileSaveSuccess}
+          isFirstTimeOnboarding={isFirstTimeOnboarding}
+        />
+      )}
     </>
   );
 }
 
-function AppNavbar({ onLogout, theme, toggleTheme }) {
+function AppNavbar({ onLogout, theme, toggleTheme, onOpenProfile, patientName }) {
   const { role } = useAuthStore();
   const location = useLocation();
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
@@ -149,6 +216,7 @@ function AppNavbar({ onLogout, theme, toggleTheme }) {
     { id: 2, text: 'Clinical Notifications Synced', time: '10m ago', unread: false }
   ]);
 
+  const isPatientRole = role === 'patient' || (!role || (role !== 'doctor' && role !== 'chief_doctor' && role !== 'asha' && role !== 'admin'));
   const unreadCount = notifications.filter(n => n.unread).length;
 
   const markAllRead = () => {
@@ -164,8 +232,15 @@ function AppNavbar({ onLogout, theme, toggleTheme }) {
     doctor: [
       { label: 'Doctor Hub', href: '/doctor' },
       { label: 'Clinical Queue & Roster', href: '/doctor/patients' },
-      { label: 'Medications Catalog', href: '/doctor/medications' },
+      { label: 'Pharmacy Workstation 💊', href: '/pharmacy' },
+      { label: 'Path Lab Portal 🧪', href: '/lab' },
       { label: 'Hospital Schedule', href: '/doctor/appointments' },
+    ],
+    pharmacist: [
+      { label: 'Pharmacy Inventory & Dispensing 💊', href: '/pharmacy' },
+    ],
+    lab_technician: [
+      { label: 'Pathology Lab Queue & Results 🧪', href: '/lab' },
     ],
     asha: [
       { label: 'ASHA Field Center', href: '/asha' },
@@ -173,20 +248,24 @@ function AppNavbar({ onLogout, theme, toggleTheme }) {
     chief_doctor: [
       { label: 'CMO Command Center', href: '/cmo' },
       { label: 'GIS Epidemic Maps', href: '/cmo/overview' },
-      { label: 'District Patients', href: '/cmo/patients' },
-      { label: 'Doctors Network', href: '/cmo/doctors' },
+      { label: 'Pharmacy Inventory 💊', href: '/pharmacy' },
+      { label: 'Path Lab Portal 🧪', href: '/lab' },
     ],
     admin: [
       { label: 'System Telemetry', href: '/admin' },
+      { label: 'Pharmacy Workstation 💊', href: '/pharmacy' },
+      { label: 'Path Lab Portal 🧪', href: '/lab' },
     ],
   };
 
   const getRoleLabel = () => {
     if (role === 'doctor') return { label: 'Doctor Portal', bg: 'primary', icon: FaStethoscope };
     if (role === 'chief_doctor') return { label: 'Chief Medical Officer', bg: 'dark', icon: FaBrain };
+    if (role === 'pharmacist') return { label: 'Pharmacist Workstation', bg: 'warning', icon: FaStethoscope };
+    if (role === 'lab_technician') return { label: 'Path Lab Specialist', bg: 'info', icon: FaStethoscope };
     if (role === 'asha') return { label: 'ASHA Worker', bg: 'success', icon: FaUserNurse };
     if (role === 'admin') return { label: 'Administrator', bg: 'danger', icon: FaShieldAlt };
-    return { label: 'Patient Portal', bg: 'teal', icon: FaHospitalUser };
+    return { label: patientName || 'Patient Portal', bg: 'teal', icon: FaHospitalUser };
   };
 
   const roleInfo = getRoleLabel();
@@ -201,12 +280,12 @@ function AppNavbar({ onLogout, theme, toggleTheme }) {
           <span className="brand-badge ms-2">AI 2.0</span>
         </Navbar.Brand>
 
-        {/* Display Active Authenticated Role Badge (No Unauthenticated Switcher) */}
+        {/* Display Active Authenticated Role Badge */}
         <div className="d-none d-md-flex align-items-center me-3">
-          <Badge bg={roleInfo.bg} className="px-3 py-2 rounded-pill fs-7 d-flex align-items-center gap-2 shadow-sm">
+          <span className="badge-role px-3 py-2 rounded-pill fs-7 d-flex align-items-center gap-2 shadow-sm">
             <RoleIcon size={14} />
             {roleInfo.label}
-          </Badge>
+          </span>
         </div>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -229,6 +308,18 @@ function AppNavbar({ onLogout, theme, toggleTheme }) {
           </Nav>
 
           <div className="d-flex align-items-center gap-2 mt-3 mt-lg-0 position-relative">
+            {/* Patient Profile Edit Button */}
+            {isPatientRole && (
+              <Button
+                size="sm"
+                className="btn-profile rounded-pill px-3 py-1.5 fw-bold text-white shadow-sm d-flex align-items-center gap-2"
+                onClick={onOpenProfile}
+                title="Edit My Patient Profile"
+              >
+                <FaUser size={12} /> My Profile
+              </Button>
+            )}
+
             {/* Theme Toggle Button */}
             <Button
               variant="outline-secondary"

@@ -35,6 +35,8 @@ export const authAPI = {
     api.post('/auth/request-otp', { phone_number: phoneNumber }),
   verifyOTP: (phoneNumber, otpCode) =>
     api.post('/auth/verify-otp', { phone_number: phoneNumber, otp_code: otpCode }),
+  registerPatient: (patientData) =>
+    api.post('/auth/register', patientData),
   staffLogin: (email, password) =>
     api.post('/auth/staff/login', { email, password }),
   logout: () => api.post('/auth/logout'),
@@ -43,12 +45,14 @@ export const authAPI = {
 // Patient APIs
 export const patientAPI = {
   getProfile: () => api.get('/patients/me'),
+  getCurrentProfile: () => api.get('/patients/me'),
   updateProfile: (data) => api.put('/patients/me', data),
   getPatient: (id) => api.get(`/patients/${id}`),
   getMedicalFile: (id) => api.get(`/patients/${id}/medical-file`),
   createLabTest: (id, data) => api.post(`/patients/${id}/lab-tests`, data),
   updateLabTestResult: (testId, data) => api.put(`/patients/lab-tests/${testId}/results`, data),
 };
+export const patientsAPI = patientAPI;
 
 // Case APIs
 export const caseAPI = {
@@ -93,6 +97,8 @@ export const hospitalAPI = {
     const params = date ? { date } : {};
     return api.get(`/hospitals/${id}/slots`, { params });
   },
+  dispatchEmergency: (data) => api.post('/hospitals/emergency-dispatch', data),
+  cancelEmergency: (data) => api.post('/hospitals/emergency-cancel', data),
 };
 
 // Analytics APIs
@@ -114,6 +120,24 @@ export const ashaAPI = {
   getWorkers: () => api.get('/asha/workers'),
   submitFollowup: (id, data) =>
     api.post(`/asha/assignments/${id}/submit-followup`, data),
+  dispatchEmergency: (data) => api.post('/asha/emergency-dispatch', data),
+};
+
+// Medication Pharmacy APIs
+export const medicationsAPI = {
+  getMedications: (params) => api.get('/medications', { params }),
+  addMedication: (data) => api.post('/medications', data),
+  updateStock: (id, data) => api.put(`/medications/${id}`, data),
+  dispenseMedication: (id, quantity = 1) => api.post(`/medications/dispense/${id}?quantity=${quantity}`),
+  deleteMedication: (id) => api.delete(`/medications/${id}`),
+};
+
+// Pathology Lab APIs
+export const labAPI = {
+  getLabTests: (params) => api.get('/lab/tests', { params }),
+  createLabTest: (data) => api.post('/lab/tests/create', data),
+  uploadLabResult: (testId, data) => api.post(`/lab/tests/${testId}/upload-result`, data),
+  getMyLabTests: () => api.get('/lab/tests/patient/me'),
 };
 
 // Dashboard APIs
