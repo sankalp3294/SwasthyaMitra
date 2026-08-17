@@ -36,7 +36,7 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           cd swasthya_mitra_app/frontend
-          npm ci
+          npm install
 
       - name: Build React Frontend
         run: |
@@ -45,6 +45,7 @@ jobs:
           cp build/index.html build/404.html
         env:
           PUBLIC_URL: '/SwasthyaMitra'
+          CI: false
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
