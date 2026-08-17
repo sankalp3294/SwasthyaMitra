@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Navbar, Container, Nav, Spinner, Badge, Button } from 'react-bootstrap';
 import { 
   FaSun, FaMoon, FaBell, FaUserMd, FaShieldAlt, FaUser,
@@ -44,14 +44,14 @@ function App() {
   if (!ready) return <div className="d-flex justify-content-center align-items-center min-vh-100"><Spinner animation="border" variant="teal" /></div>;
 
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL || ''}>
+    <HashRouter>
       <AppContent 
         isAuthenticated={isAuthenticated} 
         onLogout={clearSession} 
         theme={theme}
         toggleTheme={toggleTheme}
       />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

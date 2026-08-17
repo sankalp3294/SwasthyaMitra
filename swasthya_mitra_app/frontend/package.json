@@ -2,7 +2,7 @@
   "name": "swasthya-mitra-frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://sankalp3294.github.io/SwasthyaMitra",
+  "homepage": ".",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
