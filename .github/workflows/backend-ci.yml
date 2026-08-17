@@ -1,0 +1,33 @@
+name: FastAPI Backend Build & Test Suite
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'swasthya_mitra_app/backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Backend Dependencies
+        run: |
+          cd swasthya_mitra_app/backend
+          pip install -r requirements.txt
+
+      - name: Validate FastAPI Configuration & Seed Test
+        run: |
+          cd swasthya_mitra_app/backend
+          python -c "from app.database import engine, Base; Base.metadata.create_all(bind=engine); print('Database schema verified!')"
