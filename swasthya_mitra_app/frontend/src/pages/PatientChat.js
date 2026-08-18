@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Card, Form, Button, Alert, Spinner, Row, Col, Badge } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { 
   FaMicrophone, FaPaperPlane, FaRobot, FaUser, FaHospital, 
-  FaCalendarCheck, FaExclamationTriangle, FaVolumeUp, FaSparkles
+  FaExclamationTriangle
 } from 'react-icons/fa';
 import { appointmentAPI, caseAPI, hospitalAPI } from '../services/api';
 import { useAuthStore } from '../store/store';
@@ -11,7 +11,6 @@ import { useAuthStore } from '../store/store';
 export default function PatientChat() {
   const patientId = useAuthStore((state) => state.patientId);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState(location.state?.prefill || '');

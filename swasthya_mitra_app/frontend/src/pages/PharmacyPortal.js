@@ -7,7 +7,6 @@ export default function PharmacyPortal() {
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [stockStatusFilter, setStockStatusFilter] = useState('ALL');
   const [alertMsg, setAlertMsg] = useState(null);
 

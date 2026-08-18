@@ -1,9 +1,8 @@
 import React from 'react';
-import { Container, Card, Row, Col, Button, Badge } from 'react-bootstrap';
+import { Container, Card, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { 
-  FaUserInjured, FaPills, FaCalendarAlt, FaStethoscope, 
-  FaHeartbeat, FaMicroscope, FaUserCheck, FaArrowRight, FaShieldAlt
+  FaUserInjured, FaPills, FaCalendarAlt, FaStethoscope, FaArrowRight
 } from 'react-icons/fa';
 
 export default function DoctorHome() {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Badge, Alert, Spinner, Table, ProgressBar, Row, Col, InputGroup, Form, Button, Modal } from 'react-bootstrap';
+import { Container, Card, Badge, Alert, Spinner, Table, ProgressBar, Row, Col, Button, Modal } from 'react-bootstrap';
 import { dashboardAPI, patientAPI } from '../services/api';
 
 export default function CMOPatients() {
@@ -8,8 +8,6 @@ export default function CMOPatients() {
   const [error, setError] = useState('');
   
   // Patient Search & EHR Viewer State
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [medicalFile, setMedicalFile] = useState(null);
   const [showFileModal, setShowFileModal] = useState(false);
   const [loadingFile, setLoadingFile] = useState(false);

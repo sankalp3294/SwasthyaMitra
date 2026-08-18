@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, Form, Button, Alert, Spinner, Badge, Row, Col, Modal } from 'react-bootstrap';
 import { 
-  FaHeartbeat, FaMobileAlt, FaUserMd, FaUserPlus, FaUserCheck, 
-  FaSignInAlt, FaCheckCircle, FaGlobe, FaTint, FaMapMarkerAlt,
-  FaPhoneAlt, FaAmbulance, FaPhoneVolume, FaHospital, FaShieldAlt
+  FaHeartbeat, FaMobileAlt, FaUserMd, FaUserPlus, 
+  FaPhoneAlt, FaAmbulance, FaPhoneVolume
 } from 'react-icons/fa';
 import { authAPI, hospitalAPI } from '../services/api';
 import { useAuthStore } from '../store/store';

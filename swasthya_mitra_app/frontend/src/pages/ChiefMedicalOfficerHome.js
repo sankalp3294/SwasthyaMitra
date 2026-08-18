@@ -1,9 +1,9 @@
 import React from 'react';
-import { Container, Card, Row, Col, Button, Badge } from 'react-bootstrap';
+import { Container, Card, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { 
-  FaBrain, FaChartLine, FaUserNurse, FaHospital, FaAmbulance, 
-  FaMapMarkedAlt, FaShieldAlt, FaUsers, FaArrowRight
+  FaBrain, FaUserNurse, 
+  FaMapMarkedAlt, FaUsers, FaArrowRight
 } from 'react-icons/fa';
 
 export default function ChiefMedicalOfficerHome() {

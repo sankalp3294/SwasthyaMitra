@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, ListGroup, Badge, Spinner, Alert, Button, Row, Col, ProgressBar, Modal } from 'react-bootstrap';
 import { 
   FaCalendarCheck, FaClock, FaRedo, FaCheckCircle, FaHospital, 
-  FaPills, FaHeartbeat, FaCapsules, FaShieldAlt, FaExclamationCircle
+  FaHeartbeat, FaCapsules, FaExclamationCircle
 } from 'react-icons/fa';
 import { appointmentAPI, dashboardAPI, hospitalAPI } from '../services/api';
 

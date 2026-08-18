@@ -8,7 +8,6 @@ export default function LabPortal() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [alertMsg, setAlertMsg] = useState(null);
 
   // Modal States
@@ -92,7 +91,7 @@ export default function LabPortal() {
   const handleOrderTest = async (e) => {
     e.preventDefault();
     try {
-      const res = await labAPI.createLabTest({
+      await labAPI.createLabTest({
         patient_id: Number(newTest.patient_id),
         test_name: newTest.test_name,
         test_category: newTest.test_category,

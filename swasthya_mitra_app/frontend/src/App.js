@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Navbar, Container, Nav, Spinner, Badge, Button } from 'react-bootstrap';
 import { 
-  FaSun, FaMoon, FaBell, FaUserMd, FaShieldAlt, FaUser,
+  FaSun, FaMoon, FaBell, FaShieldAlt, FaUser,
   FaHeartbeat, FaSignOutAlt, FaStethoscope, FaUserNurse, FaBrain, FaHospitalUser
 } from 'react-icons/fa';
 import { useAuthStore } from './store/store';

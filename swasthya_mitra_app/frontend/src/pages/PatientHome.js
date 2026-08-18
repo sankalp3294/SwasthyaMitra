@@ -3,8 +3,7 @@ import { Container, Card, Row, Col, Button, Badge, Form, Alert } from 'react-boo
 import { useNavigate } from 'react-router-dom';
 import { 
   FaUserMd, FaHeartbeat, FaCalendarAlt, FaComments, FaLungs, 
-  FaThermometerHalf, FaStethoscope, FaExclamationTriangle,
-  FaArrowRight, FaCheckCircle
+  FaThermometerHalf, FaStethoscope, FaArrowRight
 } from 'react-icons/fa';
 import { FiActivity } from 'react-icons/fi';
 
