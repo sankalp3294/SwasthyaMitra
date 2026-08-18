@@ -59,6 +59,8 @@ export default function OTPLogin() {
     if (userRole === 'chief_doctor') return '/cmo';
     if (userRole === 'admin') return '/admin';
     if (userRole === 'asha') return '/asha';
+    if (userRole === 'pharmacist') return '/pharmacy';
+    if (userRole === 'lab_technician') return '/lab';
     return '/patient';
   };
 

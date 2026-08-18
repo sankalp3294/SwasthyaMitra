@@ -5,7 +5,7 @@ import json
 from sqlalchemy.orm import Session
 
 from app.models import (
-    Appointment, ASHAWorker, Case, CaseEvent, CommunitySignal, Department, Doctor, 
+    Appointment, ASHAAssignment, ASHAWorker, Case, CaseEvent, CommunitySignal, Department, Doctor, 
     Hospital, Intervention, LabTest, MedicineInventory, Patient, Slot, StaffCredential, User
 )
 from app.utils.passwords import hash_password
@@ -98,6 +98,8 @@ def seed_demo_data(db: Session) -> None:
         "asha@swasthyamitra.demo": ("9876543213", "asha"),
         "cmo@swasthyamitra.demo": ("9876543215", "chief_doctor"),
         "admin@swasthyamitra.demo": ("9876543214", "admin"),
+        "pharmacist@swasthyamitra.demo": ("9876543219", "pharmacist"),
+        "lab@swasthyamitra.demo": ("9876543220", "lab_technician"),
     }
     for email, (phone_number, role) in demo_staff.items():
         user = db.query(User).filter(User.phone_number == phone_number).first()

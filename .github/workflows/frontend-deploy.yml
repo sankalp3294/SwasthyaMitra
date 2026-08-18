@@ -1,9 +1,7 @@
 name: Deploy SwasthyaMitra Frontend to GitHub Pages
 
+# Consolidated into deploy.yml. Retained for manual fallback if needed.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:

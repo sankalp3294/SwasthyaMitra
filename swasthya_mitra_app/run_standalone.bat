@@ -29,7 +29,7 @@ echo ✅ Node / npm found
 
 echo.
 echo 📦 Initializing database...
-python -c "import sys; sys.path.insert(0, './backend'); from app.database import engine, Base, SessionLocal; from app.seed import seed_demo_data; Base.metadata.create_all(bind=engine); db = SessionLocal(); seed_demo_data(db); db.close(); print('✅ SQLite Database ready!')"
+python -c "import sys; sys.path.insert(0, './backend'); from app.database import engine, Base, SessionLocal; from app.seed import seed_demo_data; Base.metadata.create_all(bind=engine); db = SessionLocal(); seed_demo_data(db); db.close(); print('SQLite Database ready!')"
 
 echo.
 echo 🚀 Launching Backend API Server (FastAPI on port 8000)...
@@ -37,7 +37,7 @@ start "SwasthyaMitra Backend" cmd /k "cd /d %~dp0backend && python -m uvicorn ap
 
 echo.
 echo 🚀 Launching Frontend UI (React on port 8080)...
-start "SwasthyaMitra Frontend" cmd /k "cd /d %~dp0frontend && set PORT=8080&& npm start"
+start "SwasthyaMitra Frontend" cmd /k "cd /d %~dp0frontend && python -m http.server 8080 --directory build"
 
 echo.
 echo ===================================================

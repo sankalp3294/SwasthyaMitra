@@ -381,7 +381,7 @@ function AppNavbar({ onLogout, theme, toggleTheme, onOpenProfile, patientName })
               className="rounded-pill px-3 py-1 fw-bold ms-2 d-flex align-items-center gap-2"
               onClick={() => {
                 onLogout();
-                window.location.href = '/login';
+                window.location.hash = '#/login';
               }}
             >
               <FaSignOutAlt /> Exit
