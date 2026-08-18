@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "swasthya_mitra_app/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(auth|patients|cases|appointments|hospitals|analytics|asha|dashboards|medications|notifications|lab|docs|openapi.json|health)(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "swasthya_mitra_app/frontend/build/$1"
+    }
+  ]
+}
